@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 3001;
-const contacts = [
+let contacts = [
   {
     id: "1",
     name: "Arto Hellas",
@@ -22,23 +22,40 @@ const contacts = [
     name: "Mary Poppendieck",
     number: "39-23-6423122",
   },
+  {
+    id: "5",
+    name: "Delete Example",
+    number: "39-23-6423122",
+  },
 ];
 
 // Get contacts
 app.get("/api/persons", (req, res) => {
   res.status(200).json(contacts);
 });
+
 // Get info and Date
 app.get("/info", (req, res) => {
   const date = new Date();
   const htmlElement = `<p>Phonebook has info for ${contacts.length} people</p><p>${date}</p>`;
   res.status(200).send(htmlElement);
 });
+
 // Get single contact
 app.get("/api/persons/:id", (req, res) => {
   const id = req.params.id;
-  const contact = contacts.filter((contact) => contact.id === id);
-  contact ? res.status(200).json(contact) : res.status(404).end();
+  const contact = contacts.find((contact) => contact.id === id);
+  if (!contact) {
+    return res.status(404).json({ error: "Contact not found" });
+  }
+  res.status(200).json(contact);
+});
+
+// Delete single contact
+app.delete("/api/persons/:id", (req, res) => {
+  const id = req.params.id;
+  contacts = contacts.filter((contact) => contact.id !== id);
+  res.status(200).json(contacts);
 });
 
 // Server running
