@@ -29,6 +29,9 @@ let contacts = [
   },
 ];
 
+// Middleware to parse JSON
+app.use(express.urlencoded({ extended: true }));
+
 // Get contacts
 app.get("/api/persons", (req, res) => {
   res.status(200).json(contacts);
@@ -55,6 +58,14 @@ app.get("/api/persons/:id", (req, res) => {
 app.delete("/api/persons/:id", (req, res) => {
   const id = req.params.id;
   contacts = contacts.filter((contact) => contact.id !== id);
+  res.status(200).json(contacts);
+});
+
+// Add a new user
+app.post("/api/persons", (req, res) => {
+  const { name, number } = req.body;
+  const id = Math.floor(Math.random() * 100) + 1;
+  contacts.push({ id: id.toString(), name: name, number: number });
   res.status(200).json(contacts);
 });
 
