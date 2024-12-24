@@ -64,6 +64,17 @@ app.delete("/api/persons/:id", (req, res) => {
 // Add a new user
 app.post("/api/persons", (req, res) => {
   const { name, number } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+  if (!number) {
+    return res.status(400).json({ error: "Number is required" });
+  }
+  if (contacts.some((contact) => contact.name === name)) {
+    return res.status(400).json({ error: "Contact already exists" });
+  }
+
   const id = Math.floor(Math.random() * 100) + 1;
   contacts.push({ id: id.toString(), name: name, number: number });
   res.status(200).json(contacts);
