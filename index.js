@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
 const PORT = 3001;
 let contacts = [
   {
@@ -31,17 +32,19 @@ let contacts = [
 
 // Middleware to parse JSON
 app.use(express.urlencoded({ extended: true }));
-
-// Get contacts
+app.use(morgan("tiny"));
+// Get all contacts
 app.get("/api/persons", (req, res) => {
   res.status(200).json(contacts);
 });
 
-// Get info and Date
+// Get info
 app.get("/info", (req, res) => {
   const date = new Date();
-  const htmlElement = `<p>Phonebook has info for ${contacts.length} people</p><p>${date}</p>`;
-  res.status(200).send(htmlElement);
+  res.status(200).send(`
+    <p>Phonebook has info for ${contacts.length} people.</p>
+    <p>${date}</p>
+    `);
 });
 
 // Get single contact
