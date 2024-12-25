@@ -32,7 +32,15 @@ let contacts = [
 
 // Middleware to parse JSON
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan("tiny"));
+
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body) || "No Body";
+});
+
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms  :body")
+);
+
 // Get all contacts
 app.get("/api/persons", (req, res) => {
   res.status(200).json(contacts);
