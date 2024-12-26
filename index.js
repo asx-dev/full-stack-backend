@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
 const PORT = 3001;
 let contacts = [
   {
@@ -32,7 +33,8 @@ let contacts = [
 
 // Middleware to parse JSON
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json());
+app.use(cors());
 morgan.token("body", (req) => {
   return JSON.stringify(req.body) || "No Body";
 });
@@ -75,7 +77,7 @@ app.delete("/api/persons/:id", (req, res) => {
 // Add a new user
 app.post("/api/persons", (req, res) => {
   const { name, number } = req.body;
-
+  console.log(req.body);
   if (!name) {
     return res.status(400).json({ error: "Name is required" });
   }
@@ -86,9 +88,10 @@ app.post("/api/persons", (req, res) => {
     return res.status(400).json({ error: "Contact already exists" });
   }
 
-  const id = Math.floor(Math.random() * 100) + 1;
-  contacts.push({ id: id.toString(), name: name, number: number });
-  res.status(200).json(contacts);
+  const id = Math.floor(Math.random() * 1000) + 1;
+  const newContact = { id: id.toString(), name: name, number: number };
+  contacts.push(newContact);
+  res.status(200).json(newContact);
 });
 
 // Server running
