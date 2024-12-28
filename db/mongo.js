@@ -1,27 +1,16 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
-
 const [password, name, number] = process.argv.slice(2);
-
 // Connect to MongoDB
 const dbConnection = async () => {
   try {
-    const db = await mongoose.connect(
-      `mongodb+srv://asx:${password}@phonebook.j2sjy.mongodb.net/phonebook?retryWrites=true&w=majority&appName=Phonebook`
-    );
+    const db = await mongoose.connect(process.env.MONGODB_URI);
+    console.log("Connected to MongoDB");
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error}`);
     process.exit(1);
   }
 };
-
-// Schema
-const contactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-});
-
-// Model
-const Contact = mongoose.model("Contact", contactSchema);
 
 // Create a sample contact
 const createSampleContact = async () => {
@@ -49,8 +38,6 @@ const getAllContacts = async () => {
     mongoose.connection.close();
   }
 };
-// Connect and Test
-dbConnection();
 
 if (password && !name && !number) {
   getAllContacts();
@@ -60,4 +47,4 @@ if (password && name && number) {
   createSampleContact();
 }
 
-module.exports = { Contact, dbConnection };
+module.exports = dbConnection;

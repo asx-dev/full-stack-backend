@@ -3,6 +3,8 @@ const app = express();
 const morgan = require("morgan");
 const cors = require("cors");
 const PORT = process.env.PORT || 3001;
+const db = require("./db/mongo");
+const Contact = require("./models/contact");
 let contacts = [
   {
     id: "1",
@@ -45,8 +47,13 @@ app.use(
 );
 
 // Get all contacts
-app.get("/api/persons", (req, res) => {
-  res.status(200).json(contacts);
+app.get("/api/persons", async (req, res) => {
+  try {
+    const contacts = await Contact.find({});
+    res.status(200).json(contacts);
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
 // Get info
@@ -59,13 +66,15 @@ app.get("/info", (req, res) => {
 });
 
 // Get single contact
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
-  const contact = contacts.find((contact) => contact.id === id);
-  if (!contact) {
-    return res.status(404).json({ error: "Contact not found" });
+  try {
+    const contact = await Contact.findById(id);
+    res.status(200).json(contact);
+  } catch (error) {
+    console.log(error.message);
+    res.status(404).json("Contact don't found");
   }
-  res.status(200).json(contact);
 });
 
 // Delete single contact
@@ -76,26 +85,31 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 
 // Add a new user
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res) => {
   const { name, number } = req.body;
-  console.log(req.body);
-  if (!name) {
-    return res.status(400).json({ error: "Name is required" });
+  try {
+    const newContact = new Contact(name, number);
+    await newContact.save();
+    res.status(201).json(newContact);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json("Error creating contact");
   }
-  if (!number) {
-    return res.status(400).json({ error: "Number is required" });
-  }
-  if (contacts.some((contact) => contact.name === name)) {
-    return res.status(400).json({ error: "Contact already exists" });
-  }
-
-  const id = Math.floor(Math.random() * 1000) + 1;
-  const newContact = { id: id.toString(), name: name, number: number };
-  contacts.push(newContact);
-  res.status(200).json(newContact);
 });
+
+// TODO: Test api methods to verify the frontend is working
 
 // Server running
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const server = async () => {
+  try {
+    const database = await db();
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error(`Error starting server: ${error}`);
+    process.exit(1);
+  }
+};
+
+server();
