@@ -8,7 +8,6 @@ const dbConnection = async () => {
     const db = await mongoose.connect(
       `mongodb+srv://asx:${password}@phonebook.j2sjy.mongodb.net/phonebook?retryWrites=true&w=majority&appName=Phonebook`
     );
-    console.log(`Connected to MongoDB: ${db.connection.host}`);
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error}`);
     process.exit(1);
@@ -32,15 +31,18 @@ const createSampleContact = async () => {
     console.log(`added ${name} number ${number} to phonebook`);
   } catch (error) {
     console.error(`Error creating sample contact: ${error.message}`);
+  } finally {
+    mongoose.connection.close();
   }
 };
 
-// TODO: Format the result of the contacts info
-// TODO: Review when you must to close the connection to mongodb.
 const getAllContacts = async () => {
   try {
     const contacts = await Contact.find({});
-    console.log("Phonebook: ", contacts);
+    console.log(
+      "phonebook:\n" +
+        contacts.map((contact) => contact.name + " " + contact.phone).join("\n")
+    );
   } catch (error) {
     console.error(`Error getting contacts: ${error.message}`);
   } finally {
@@ -49,6 +51,13 @@ const getAllContacts = async () => {
 };
 // Connect and Test
 dbConnection();
-createSampleContact();
-getAllContacts();
+
+if (password && !name && !number) {
+  getAllContacts();
+}
+
+if (password && name && number) {
+  createSampleContact();
+}
+
 module.exports = { Contact, dbConnection };
