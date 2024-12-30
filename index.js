@@ -5,33 +5,6 @@ const cors = require("cors");
 const PORT = process.env.PORT || 3001;
 const db = require("./db/mongo");
 const Contact = require("./models/contact");
-let contacts = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-  {
-    id: "5",
-    name: "Delete Example",
-    number: "39-23-6423122",
-  },
-];
 
 // Middleware to parse JSON
 app.use(express.urlencoded({ extended: true }));
@@ -57,7 +30,8 @@ app.get("/api/persons", async (req, res) => {
 });
 
 // Get info
-app.get("/info", (req, res) => {
+app.get("/info", async (req, res) => {
+  const contacts = await Contact.find({});
   const date = new Date();
   res.status(200).send(`
     <p>Phonebook has info for ${contacts.length} people.</p>
@@ -78,17 +52,22 @@ app.get("/api/persons/:id", async (req, res) => {
 });
 
 // Delete single contact
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
-  contacts = contacts.filter((contact) => contact.id !== id);
-  res.status(200).json(contacts);
+  try {
+    await Contact.deleteOne({ _id: id });
+    res.status(200).json("Contact deleted successfully");
+  } catch (error) {
+    console.log(error.message);
+    res.status(404).json("Contact don't found");
+  }
 });
 
 // Add a new user
 app.post("/api/persons", async (req, res) => {
   const { name, number } = req.body;
   try {
-    const newContact = new Contact(name, number);
+    const newContact = new Contact({ name, number });
     await newContact.save();
     res.status(201).json(newContact);
   } catch (error) {
@@ -96,8 +75,6 @@ app.post("/api/persons", async (req, res) => {
     res.status(500).json("Error creating contact");
   }
 });
-
-// TODO: Test api methods to verify the frontend is working
 
 // Server running
 const server = async () => {
