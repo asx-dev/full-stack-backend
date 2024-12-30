@@ -14,7 +14,6 @@ app.use(express.static("dist"));
 morgan.token("body", (req) => {
   return JSON.stringify(req.body) || "No Body";
 });
-
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms  :body")
 );
@@ -56,7 +55,8 @@ app.delete("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await Contact.deleteOne({ _id: id });
-    res.status(200).json("Contact deleted successfully");
+    const updatedContacts = await Contact.find({});
+    res.status(200).json(updatedContacts);
   } catch (error) {
     console.log(error.message);
     res.status(404).json("Contact don't found");
