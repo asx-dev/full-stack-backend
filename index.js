@@ -53,6 +53,26 @@ app.get("/api/persons/:id", async (req, res, next) => {
   }
 });
 
+// Update single contact
+app.put("/api/persons/:id", async (req, res, next) => {
+  const id = req.params.id;
+  const { name, number } = req.body;
+  try {
+    const contact = await Contact.findByIdAndUpdate(
+      id,
+      { name, number },
+      { new: true }
+    );
+    if (contact) {
+      res.status(200).json(contact);
+    } else {
+      res.status(404).end();
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Delete single contact
 app.delete("/api/persons/:id", async (req, res) => {
   const id = req.params.id;
