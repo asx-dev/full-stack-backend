@@ -39,14 +39,17 @@ app.get("/info", async (req, res) => {
 });
 
 // Get single contact
-app.get("/api/persons/:id", async (req, res) => {
+app.get("/api/persons/:id", async (req, res, next) => {
   const id = req.params.id;
   try {
     const contact = await Contact.findById(id);
-    res.status(200).json(contact);
+    if (contact) {
+      res.status(200).json(contact);
+    } else {
+      res.status(404).end();
+    }
   } catch (error) {
-    console.log(error.message);
-    res.status(404).json("Contact don't found");
+    next(error);
   }
 });
 
@@ -75,6 +78,16 @@ app.post("/api/persons", async (req, res) => {
     res.status(500).json("Error creating contact");
   }
 });
+
+// Error handler
+const errorHandler = (error, req, res, next) => {
+  console.error(error);
+  if (error.name === "CastError") {
+    return res.status(400).json({ error: "Malformed id" });
+  }
+  next(error);
+};
+app.use(errorHandler);
 
 // Server running
 const server = async () => {
