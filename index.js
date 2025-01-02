@@ -61,7 +61,7 @@ app.put("/api/persons/:id", async (req, res, next) => {
     const contact = await Contact.findByIdAndUpdate(
       id,
       { name, number },
-      { new: true }
+      { new: true, runValidators: true }
     );
     if (contact) {
       res.status(200).json(contact);
