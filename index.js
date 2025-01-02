@@ -94,14 +94,12 @@ app.post("/api/persons", async (req, res) => {
     await newContact.save();
     res.status(201).json(newContact);
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json("Error creating contact");
+    res.status(500).json(error);
   }
 });
 
 // Error handler
 const errorHandler = (error, req, res, next) => {
-  console.error(error);
   if (error.name === "CastError") {
     return res.status(400).json({ error: "Malformed id" });
   }
