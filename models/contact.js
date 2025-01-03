@@ -4,7 +4,18 @@ const mongoose = require("mongoose");
 const contactSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, minLength: 3 },
-    number: { type: String, required: true },
+    number: {
+      type: String,
+      required: true,
+      minLength: 8,
+      validate: {
+        validator: function (value) {
+          console.log("Validating:", value);
+          return /^\d{2}-\d{6,}$/.test(value);
+        },
+        message: "Invalid phone number",
+      },
+    },
   },
   {
     toJSON: {
