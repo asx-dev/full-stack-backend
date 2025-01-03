@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 // Schema
 const contactSchema = new mongoose.Schema(
@@ -10,10 +10,10 @@ const contactSchema = new mongoose.Schema(
       minLength: 8,
       validate: {
         validator: function (value) {
-          console.log("Validating:", value);
-          return /^\d{2}-\d{6,}$/.test(value);
+          console.log('Validating:', value)
+          return /^\d{2}-\d{6,}$/.test(value)
         },
-        message: "Invalid phone number",
+        message: 'Invalid phone number',
       },
     },
   },
@@ -21,15 +21,15 @@ const contactSchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
       transform: (doc, ret) => {
-        ret.id = ret._id;
-        delete ret._id;
-        delete ret.__v;
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
       },
     },
   }
-);
+)
 
 // Model
-const Contact = mongoose.model("Contact", contactSchema);
+const Contact = mongoose.model('Contact', contactSchema)
 
-module.exports = Contact;
+module.exports = Contact
